@@ -1,0 +1,43 @@
+{
+  "name": "game jam",
+  "tree": {
+    "$className": "DataModel",
+    "HttpService": {
+      "$className": "HttpService",
+      "$properties": {
+        "HttpEnabled": true
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "GlobalShadows": true,
+        "Ambient": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Outlines": false,
+        "Technology": "Voxel",
+        "Brightness": 2.0
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Source": {
+        "$path": "src/shared"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/client"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path":"src/server"
+    }
+  }
+}
