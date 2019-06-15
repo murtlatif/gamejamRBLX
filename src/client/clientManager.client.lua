@@ -3,7 +3,7 @@ File:			\src\client\clientManager.client.lua
 Created On:		June 15th 2019, 04:07:46 PM
 Author:			Chomboghai
 
-Last Modified:	 June 15th 2019, 05:39:37 PM
+Last Modified:	 June 15th 2019, 07:25:20 PM
 Modified By:	 Chomboghai
 
 Description:	
@@ -34,6 +34,8 @@ local digsound = SoundService:WaitForChild'dig'
 local minesound = SoundService:WaitForChild'mine'
 local digbreak = SoundService:WaitForChild'digbreak'
 local minebreak = SoundService:WaitForChild'minebreak'
+local mouseBox = playerGui:WaitForChild'SelectionBox'
+local maxReachRange = 10
 local rng = Random.new(tick())
 
 --| Functions |--
@@ -41,6 +43,16 @@ local function playsfx(sound)
     local soundspeed = rng:NextNumber(0.9, 1.1)
     sound.PlaybackSpeed = soundspeed
     SoundService:PlayLocalSound(sound)
+end
+
+local function onMouseMove(target)
+    if not target then return end
+
+    if CollectionService:HasTag(target, 'Mineable') then
+        mouseBox.Adornee = target
+    else
+        mouseBox.Adornee = nil
+    end
 end
 
 local function sendMineSignal(tile)
@@ -55,9 +67,9 @@ local function sendMineSignal(tile)
         else
             warn('no sound tag for tile:', tile)
         end
-        
+
         local blockBroken = mineEvent:InvokeServer(tile)
-        
+
         if blockBroken then
             if tag == 'Dig' then
                 playsfx(digbreak)
@@ -81,10 +93,12 @@ local function clientMiner()
         local target = mouse.Target
         if target then
             if CollectionService:HasTag(target, 'Mineable') then
-                minedRecently = true
-                sendMineSignal(target)
-                wait(mineCooldown)
-                minedRecently = false
+                if player.Character and player:DistanceFromCharacter(target.Position) < maxReachRange then
+                    minedRecently = true
+                    sendMineSignal(target)
+                    wait(mineCooldown)
+                    minedRecently = false
+                end
             end
         end
     end)
@@ -105,5 +119,9 @@ clientMiner()
 
 --| Triggers |--
 updateEvent.OnClientEvent:Connect(onupdate)
-
+mouse.Move:Connect(function()
+    local target = mouse.Target
+    if not target then return end
+    onMouseMove(target)
+end)
 --| Loop |--

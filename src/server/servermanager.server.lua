@@ -3,7 +3,7 @@ File:			\src\server\systems\serverMiner.lua
 Created On:		June 15th 2019, 04:27:22 PM
 Author:			Chomboghai
 
-Last Modified:	 June 15th 2019, 06:20:23 PM
+Last Modified:	 June 15th 2019, 06:56:42 PM
 Modified By:	 Chomboghai
 
 Description:	
@@ -88,11 +88,11 @@ local function onMine(player, tile)
 
     return false
 end
-print'almost yay'
+
 --| Startup |--
 DataStore2.Combine('playerData', 'money')
 DataStore2.Combine('playerData', 'damage')
-print'yay'
+
 --| Triggers |--
 Players.PlayerAdded:Connect(initPlayer)
 minedEvent.OnServerInvoke = onMine
