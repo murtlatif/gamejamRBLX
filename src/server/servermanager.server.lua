@@ -3,7 +3,7 @@ File:			\src\server\systems\serverMiner.lua
 Created On:		June 15th 2019, 04:27:22 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 05:14:04 AM
+Last Modified:	 June 16th 2019, 05:19:09 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -82,16 +82,14 @@ local function initPlayer(player)
         updateEvent:FireClient(player, stat, value)
     end
 
-    if player.UserId == 2282833 then
-        moneyStore:Set(0)
-        damageStore:Set(1)
-        callUpdate('money', moneyStore:Get(0))
-        callUpdate('damage', damageStore:Get(1))
-    else
-        callUpdate('money', moneyStore:Get(0))
-        callUpdate('damage', damageStore:Get(1))
-        blocksMined.Value = blocksMinedStore:Get(0)
-    end
+    -- if player.UserId == 2282833 then
+    --     callUpdate('money', moneyStore:Get(0))
+    --     callUpdate('damage', damageStore:Get(1))
+    -- else
+    callUpdate('money', moneyStore:Get(0))
+    callUpdate('damage', damageStore:Get(1))
+    blocksMined.Value = blocksMinedStore:Get(0)
+    -- end
 
     moneyStore:OnUpdate(function(newVal)
         callUpdate('money', newVal)
