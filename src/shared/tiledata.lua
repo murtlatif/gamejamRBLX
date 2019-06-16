@@ -3,7 +3,7 @@ File:			\src\shared\tiledata.lua
 Created On:		June 15th 2019, 04:55:48 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 03:44:13 AM
+Last Modified:	 June 16th 2019, 04:42:21 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -59,6 +59,10 @@ local tileData = {
     Diamond = {
         hp = 250,
         r = 500
+    },
+    Insanium = {
+        hp = 500,
+        r = 5000
     }
 }
 --| Local Functions |--

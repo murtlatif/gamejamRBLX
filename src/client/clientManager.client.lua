@@ -3,7 +3,7 @@ File:			\src\client\clientManager.client.lua
 Created On:		June 15th 2019, 04:07:46 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 04:33:57 AM
+Last Modified:	 June 16th 2019, 04:57:52 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -26,7 +26,8 @@ local shopdata = require(ReplicatedStorage:WaitForChild'Source':WaitForChild'sho
 local debuglevel = 3
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
-local mineCooldown = 0
+local mouseFilteredFolder = workspace:WaitForChild'mouseFiltered'
+local mineCooldown = 0.2
 local minedRecently = false
 local mineEvent = ReplicatedStorage:WaitForChild'mined'
 local updateEvent = ReplicatedStorage:WaitForChild'update'
@@ -63,6 +64,7 @@ local recentlyAttemptedPurchase = false
 local purchaseCooldown = 3.5
 local currentDamage = 1
 
+mouse.TargetFilter = mouseFilteredFolder
 local goal = {
     Position = UDim2.new(0.5, -175, 1, -55)
 }

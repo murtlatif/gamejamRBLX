@@ -3,7 +3,7 @@ File:			\src\server\systems\serverMiner.lua
 Created On:		June 15th 2019, 04:27:22 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 04:31:02 AM
+Last Modified:	 June 16th 2019, 05:14:04 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -44,7 +44,7 @@ local latestLayerBroken = 0
 local layersAheadToSpawn = 8
 local layerWidth = 12
 local leftMineableBlockXPos = 4
-local maxlayer = 155
+local maxlayer = 180
 
 local minezoneGuard = workspace:WaitForChild'minezoneGuard'
 --| Functions |--
@@ -61,26 +61,52 @@ end
 local function initPlayer(player)
     local moneyStore = DataStore2('money', player)
     local damageStore = DataStore2('damage', player)
+    local blocksMinedStore = DataStore2('blocksMined', player)
+    
+    -- add a leaderstats
+    local leaderstats = Instance.new'Folder'
+    leaderstats.Name = 'leaderstats'
+
+    -- add some stats
+    local cash = Instance.new'IntValue'
+    cash.Name = 'Cash'
+    cash.Value = 0
+    cash.Parent = leaderstats
+
+    local blocksMined = Instance.new'IntValue'
+    blocksMined.Name = 'Blocks Mined'
+    blocksMined.Value = 0
+    blocksMined.Parent = leaderstats
 
     local function callUpdate(stat, value)
         updateEvent:FireClient(player, stat, value)
     end
 
     if player.UserId == 2282833 then
-        callUpdate('money', moneyStore:Get(1000))
-        damageStore:Get(100)
+        moneyStore:Set(0)
+        damageStore:Set(1)
+        callUpdate('money', moneyStore:Get(0))
+        callUpdate('damage', damageStore:Get(1))
     else
         callUpdate('money', moneyStore:Get(0))
-        damageStore:Get(1)
+        callUpdate('damage', damageStore:Get(1))
+        blocksMined.Value = blocksMinedStore:Get(0)
     end
 
     moneyStore:OnUpdate(function(newVal)
         callUpdate('money', newVal)
+        cash.Value = newVal
     end)
 
     damageStore:OnUpdate(function(newVal)
         callUpdate('damage', newVal)
     end)
+
+    blocksMinedStore:OnUpdate(function(newVal)
+        blocksMined.Value = newVal
+    end)
+
+    leaderstats.Parent = player
 end
 
 local function generateTiles()
@@ -106,10 +132,12 @@ end
 
 local function breakTile(player, tile, reward)
     local moneyStore = DataStore2('money', player)
+    local blocksMinedStore = DataStore2('blocksMined', player)
     local tileDepth = -tile.Position.Y / 4
 
-    -- incrmeent moneystore
+    -- increment moneystore and blocksmined store
     moneyStore:Increment(reward, 0)
+    blocksMinedStore:Increment(1, 0)
 
     -- record new depth and spawn new layers if lowest depth
     if tileDepth > latestLayerBroken then
@@ -117,6 +145,7 @@ local function breakTile(player, tile, reward)
         -- generate tiles
         generateTiles()
     end
+
     -- destroy tile
     tile:Destroy()
 end
@@ -217,6 +246,7 @@ end
 --| Startup |--
 DataStore2.Combine('playerData', 'money')
 DataStore2.Combine('playerData', 'damage')
+DataStore2.Combine('playerData', 'blocksMined')
 generateTiles()
 
 -- reset mine on timer
