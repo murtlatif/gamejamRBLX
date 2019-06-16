@@ -3,7 +3,7 @@ File:			\src\shared\tileobjects.lua
 Created On:		June 15th 2019, 04:55:48 PM
 Author:			Chomboghai
 
-Last Modified:	 June 15th 2019, 06:19:55 PM
+Last Modified:	 June 16th 2019, 01:34:38 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -21,38 +21,53 @@ local ServerStorage = game:GetService'ServerStorage'
 local rng = Random.new(tick())
 
 --| Local Functions |--
-local function defineTile(objName, mindepth, maxdepth)
+local function defineTile(objName, mindepth, maxdepth, numTickets)
     return {
         obj = ServerStorage:WaitForChild(objName),
         minDepth = mindepth,
-        maxDepth = maxdepth
+        maxDepth = maxdepth,
+        tickets = numTickets
     }
 end
 
 local function getTilesInDepth(tilesTable, depth)
     local tilesInDepth = {}
-    for tileName, tileData in pairs(tilesTable) do
-        if depth >= tileData.minDepth and depth <= tileData.maxDepth then
-            table.insert(tilesInDepth, tileData) 
+    local totalTickets = 0
+    for _, tileData in pairs(tilesTable) do
+        if type(tileData) ~= 'function' then
+            if depth >= tileData.minDepth and depth <= tileData.maxDepth then
+                table.insert(tilesInDepth, tileData)
+                totalTickets = totalTickets + tileData.tickets
+            end
         end
     end
 
-    return tilesInDepth, tileCount
+    return tilesInDepth, totalTickets
 end
 
 --| Module Definition |--
 local tiles = {
-    dirtTile = defineTile('dirtTile', 0, 5),
-    stoneTile = defineTile('stoneTile', 4, 25),
-    copperTile = defineTile('copperTile', 4, 25)
+    dirtTile = defineTile('dirtTile', 0, 8, 60),
+    stoneTile = defineTile('stoneTile', 1, 150, 70),
+    copperTile = defineTile('copperTile', 1, 25, 15),
+    tinTile = defineTile('tinTile', 7, 40, 12),
+    ironTile = defineTile('ironTile', 10, 75, 12)
 }
 
 function tiles:GetRandomTileInDepth(depth)
-    local tiles = getTilesInDepth(depth)
-    if tileCount == 0 then return end
-    local tileIndex = rng:NextInteger(1, #tiles)
-    local randomTile = tiles[tileIndex]
-    return randomTile.obj:Clone()
+    local tilesInDepth, totaltickets = getTilesInDepth(self, depth)
+    if #tilesInDepth == 0 then return end
+    local accumulatedTickets = 0
+
+    -- select a random tile based on ticket weight
+    local ticketNum = rng:NextInteger(1, totaltickets)
+
+    for _, tileData in pairs(tilesInDepth) do
+        if tileData.tickets + accumulatedTickets >= ticketNum then
+            return tileData.obj:Clone()
+        end
+        accumulatedTickets = accumulatedTickets + tileData.tickets
+    end
 end
 
 --| Module Return |--
