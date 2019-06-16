@@ -20,11 +20,23 @@ local DataStore2 = require(1936396537)
 
 --| Imports |--
 local getTileData = require(ReplicatedStorage:WaitForChild'Source':WaitForChild'tiledata')
+local tileObjects = require(ReplicatedStorage:WaitForChild'Source':WaitForChild'tileobjects')
 
 --| Variables |--
 local minedEvent = ReplicatedStorage:WaitForChild'mined'
 local updateEvent = ReplicatedStorage:WaitForChild'update'
+local returnEvent = ReplicatedStorage:WaitForChild'return'
 local damagedTiles = {}
+
+local tileFolder = workspace:WaitForChild'Tiles'
+local spawnPoint = workspace:WaitForChild'spawn'
+local additionalSpawnHeight = 10
+
+local nextEmptyLayerDepth = 2
+local latestLayerBroken = 0
+local layersAheadToSpawn = 6
+local layerWidth = 12
+local leftMineableBlockXPos = 8
 
 --| Functions |--
 local function posToString(vector3pos)
@@ -46,6 +58,33 @@ local function initPlayer(player)
     end)
 end
 
+local function generateTiles()
+    if nextEmptyLayerDepth < latestLayerBroken + layersAheadToSpawn then
+        for i = 1, layerWidth do
+            local newTile = tileObjects:GetRandomTileInDepth(nextEmptyLayerDepth)
+            newTile.Position = Vector3.new(leftMineableBlockXPos + (i * 4), nextEmptyLayerDepth * 4, 0)
+            newTile.Parent = tileFolder
+        end
+    end
+end
+
+local function breakTile(player, tile, reward)
+    local moneyStore = DataStore2('money', player)
+    local tileDepth = tile.Position.Y / 4
+
+    -- incrmeent moneystore
+    moneyStore:Increment(reward, 0)
+
+    -- record new depth and spawn new layers if lowest depth
+    if tileDepth > latestLayerBroken then
+        tileDepth = latestLayerBroken
+        -- generate tiles
+        generateTiles()
+    end
+    -- destroy tile
+    tile:Destroy()
+end
+
 local function onMine(player, tile)
     print'[server-onmine] Received mine'
     if not tile then
@@ -58,6 +97,7 @@ local function onMine(player, tile)
         local tilePosStr = posToString(tile.Position)
         local tileData = getTileData(tile)
         local tilehp = damagedTiles[tilePosStr]
+        local tileDepth = tile.Position.Y / 4
 
         if not tileData then
             warn('failed to get tile data for tile named', tile)
@@ -66,8 +106,7 @@ local function onMine(player, tile)
 
         if tilehp then
             if tilehp - playerDmg <= 0 then
-                tile:Destroy()
-                moneyStore:Increment(tileData.r, 0)
+                breakTile(player, tile, tileData.r)
                 return true
             else
                 damagedTiles[tilePosStr] = tilehp - playerDmg
@@ -75,8 +114,7 @@ local function onMine(player, tile)
         else
             tilehp = tileData.hp
             if tilehp - playerDmg <= 0 then
-                tile:Destroy()
-                moneyStore:Increment(tileData.r, 0)
+                breakTile(player, tile, tileData.r)
                 return true
             else
                 damagedTiles[tilePosStr] = tilehp - playerDmg
@@ -89,6 +127,22 @@ local function onMine(player, tile)
     return false
 end
 
+local function onReturnRequest(player)
+    local char = player.Character
+    if not char then 
+        warn('no char found for player:', player)
+        return 
+    end
+
+    local hrp = char:FindFirstChild'HumanoidRootPart'
+    if not hrp then 
+        warn('no hrp found for player:', player)
+        return 
+    end
+
+    hrp.CFrame = CFrame.new(spawnPoint.Position.X, spawnPoint.Position.Y + additionalSpawnHeight, hrp.Position.Z)
+end
+
 --| Startup |--
 DataStore2.Combine('playerData', 'money')
 DataStore2.Combine('playerData', 'damage')
@@ -96,5 +150,7 @@ DataStore2.Combine('playerData', 'damage')
 --| Triggers |--
 Players.PlayerAdded:Connect(initPlayer)
 minedEvent.OnServerInvoke = onMine
+returnEvent.OnServerEvent:Connect(onReturnRequest)
+
 
 --| Loop |--

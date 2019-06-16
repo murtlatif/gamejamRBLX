@@ -19,13 +19,13 @@ local CollectionService = game:GetService'CollectionService'
 
 --| Variables |--
 local tileData = {
-    Grass = {
-        hp = 1,
-        r = 0
-    },
     Dirt = {
         hp = 2,
         r = 0
+    },
+    Copper = {
+        hp = 8,
+        r = 1
     }
 }
 --| Local Functions |--

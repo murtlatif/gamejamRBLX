@@ -26,6 +26,7 @@ local mineCooldown = 0.5
 local minedRecently = false
 local mineEvent = ReplicatedStorage:WaitForChild'mined'
 local updateEvent = ReplicatedStorage:WaitForChild'update'
+local returnEvent = ReplicatedStorage:WaitForChild'return'
 local mineConnection = nil
 local playerGui = player:WaitForChild'PlayerGui'
 local moneygui = playerGui:WaitForChild'moneygui'
@@ -37,6 +38,12 @@ local minebreak = SoundService:WaitForChild'minebreak'
 local mouseBox = playerGui:WaitForChild'SelectionBox'
 local maxReachRange = 10
 local rng = Random.new(tick())
+local playerGui = player:WaitForChild'PlayerGui'
+local returngui = playerGui:WaitForChild'returngui'
+local returnframe = returngui:WaitForChild'Frame'
+local returnbutton = returnframe:WaitForChild'To Top'
+local recentlyReturned = false
+local returnCooldown = 2
 
 --| Functions |--
 local function playsfx(sound)
@@ -105,6 +112,14 @@ local function clientMiner()
     return true
 end
 
+local function returnToTop()
+    if recentlyReturned then return end
+    recentlyReturned = true
+    returnEvent:FireServer()
+    wait(returnCooldown)
+    recentlyReturned = false
+end
+
 local function onupdate(stat, value)
     if stat == 'money' then
         moneytext.Text = tostring(value)
@@ -119,6 +134,7 @@ clientMiner()
 
 --| Triggers |--
 updateEvent.OnClientEvent:Connect(onupdate)
+returnbutton.MouseButton1Click:Connect(returnToTop)
 mouse.Move:Connect(function()
     local target = mouse.Target
     if not target then return end

@@ -36,6 +36,15 @@ local camera = workspace.CurrentCamera
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
+local playerGui = player:WaitForChild'PlayerGui'
+local returngui = playerGui:WaitForChild'returngui'
+local returnframe = returngui:WaitForChild'Frame'
+local returnbutton = returnframe:WaitForChild'To Top'
+local hideguiYpos = 125
+local showguiYpos = -125
+local currentguiYpos = hideguiYpos
+local guiSpeed = 0.1
+
 --| Functions |--
 local function onUpdate()
     if player.Character and player.Character:FindFirstChild'HumanoidRootPart' then
@@ -44,17 +53,31 @@ local function onUpdate()
         -- scroll down cam if in mining zone
         local camX = camera.CFrame.p.X
         if camX > miningZoneXLeft and camX < miningZoneXRight then
+            -- move camera
             if cameraYOffset > miningZoneYOffset then
                 local difference = cameraYOffset - miningZoneYOffset
                 cameraYOffset = cameraYOffset - (cameraYSpeed * difference)
             end
+
+            -- bring up gui
+            if currentguiYpos > showguiYpos then
+                local difference = currentguiYpos - showguiYpos
+                currentguiYpos = currentguiYpos - (guiSpeed * difference)
+            end
+
         else
             if cameraYOffset < initialYOffset then
                 local difference =  initialYOffset - cameraYOffset
                 cameraYOffset = cameraYOffset + (cameraYSpeed * difference)
             end
+
+            if currentguiYpos < hideguiYpos then
+                local difference =  hideguiYpos - currentguiYpos
+                currentguiYpos = currentguiYpos + (guiSpeed * difference)
+            end
         end
 
+        returnframe.Position = UDim2.new(1, -350, 1, currentguiYpos)
         camera.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + cameraYOffset, cameraZ)
 	end
 end
