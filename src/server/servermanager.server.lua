@@ -1,12 +1,12 @@
 --[[---------------------------------
-File:			\src\server\systems\serverMiner.lua
+File:			\src\server\systems\servermanager.server.lua
 Created On:		June 15th 2019, 04:27:22 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 05:19:09 AM
+Last Modified:	 June 16th 2019, 05:48:47 AM
 Modified By:	 Chomboghai
 
-Description:	
+Description:	manages server side functionality
 
 ---------------CHANGES---------------
 Date		Author		Comments
@@ -62,6 +62,7 @@ local function initPlayer(player)
     local moneyStore = DataStore2('money', player)
     local damageStore = DataStore2('damage', player)
     local blocksMinedStore = DataStore2('blocksMined', player)
+    local insaniumStore = DataStore2('insanium', player)
     
     -- add a leaderstats
     local leaderstats = Instance.new'Folder'
@@ -78,6 +79,11 @@ local function initPlayer(player)
     blocksMined.Value = 0
     blocksMined.Parent = leaderstats
 
+    local insaniumMined = Instance.new'IntValue'
+    insaniumMined.Name = 'Insanium Mined'
+    insaniumMined.Value = 0
+    insaniumMined.Parent = leaderstats
+    
     local function callUpdate(stat, value)
         updateEvent:FireClient(player, stat, value)
     end
@@ -89,6 +95,7 @@ local function initPlayer(player)
     callUpdate('money', moneyStore:Get(0))
     callUpdate('damage', damageStore:Get(1))
     blocksMined.Value = blocksMinedStore:Get(0)
+    insaniumMined.Value = insaniumStore:Get(0)
     -- end
 
     moneyStore:OnUpdate(function(newVal)
@@ -102,6 +109,10 @@ local function initPlayer(player)
 
     blocksMinedStore:OnUpdate(function(newVal)
         blocksMined.Value = newVal
+    end)
+
+    insaniumStore:OnUpdate(function(newVal)
+        insaniumMined.Value = newVal
     end)
 
     leaderstats.Parent = player
@@ -131,12 +142,16 @@ end
 local function breakTile(player, tile, reward)
     local moneyStore = DataStore2('money', player)
     local blocksMinedStore = DataStore2('blocksMined', player)
+    local insaniumStore = DataStore2('insanium', player)
+
     local tileDepth = -tile.Position.Y / 4
 
-    -- increment moneystore and blocksmined store
+    -- increment moneystore and blocksmined store (and maybe insanium store)
     moneyStore:Increment(reward, 0)
     blocksMinedStore:Increment(1, 0)
-
+    if CollectionService:HasTag(tile, 'Insanium') then
+        insaniumStore:Increment(1, 0)
+    end
     -- record new depth and spawn new layers if lowest depth
     if tileDepth > latestLayerBroken then
         latestLayerBroken = tileDepth
@@ -245,6 +260,7 @@ end
 DataStore2.Combine('playerData', 'money')
 DataStore2.Combine('playerData', 'damage')
 DataStore2.Combine('playerData', 'blocksMined')
+DataStore2.Combine('playerData', 'insanium')
 generateTiles()
 
 -- reset mine on timer
