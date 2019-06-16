@@ -3,7 +3,7 @@ File:			\src\client\clientManager.client.lua
 Created On:		June 15th 2019, 04:07:46 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 03:13:13 AM
+Last Modified:	 June 16th 2019, 04:33:57 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -17,6 +17,7 @@ local CollectionService = game:GetService'CollectionService'
 local Players = game:GetService'Players'
 local ReplicatedStorage = game:GetService'ReplicatedStorage'
 local SoundService = game:GetService'SoundService'
+local TweenService = game:GetService'TweenService'
 
 --| Imports |--
 local shopdata = require(ReplicatedStorage:WaitForChild'Source':WaitForChild'shopdata')
@@ -25,12 +26,13 @@ local shopdata = require(ReplicatedStorage:WaitForChild'Source':WaitForChild'sho
 local debuglevel = 3
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
-local mineCooldown = 0.2
+local mineCooldown = 0
 local minedRecently = false
 local mineEvent = ReplicatedStorage:WaitForChild'mined'
 local updateEvent = ReplicatedStorage:WaitForChild'update'
 local returnEvent = ReplicatedStorage:WaitForChild'return'
 local purchaseEvent = ReplicatedStorage:WaitForChild'purchase'
+local resetmineEvent = ReplicatedStorage:WaitForChild'resetmine'
 local mineConnection = nil
 local playerGui = player:WaitForChild'PlayerGui'
 local moneygui = playerGui:WaitForChild'moneygui'
@@ -44,10 +46,11 @@ local buyfail = SoundService:WaitForChild'buyfail'
 local mouseBox = playerGui:WaitForChild'SelectionBox'
 local maxReachRange = 10
 local rng = Random.new(tick())
-local playerGui = player:WaitForChild'PlayerGui'
 local returngui = playerGui:WaitForChild'returngui'
 local returnframe = returngui:WaitForChild'Frame'
 local returnbutton = returnframe:WaitForChild'To Top'
+local resetmineFrame = returngui:WaitForChild'resetFrame'
+local resetTimer = resetmineFrame:WaitForChild'resetTimer'
 local recentlyReturned = false
 local returnCooldown = 2
 local shopgui = playerGui:WaitForChild'shopgui'
@@ -59,6 +62,16 @@ local shopguiUpgradeCost = shopframe:WaitForChild'upgradeCost'
 local recentlyAttemptedPurchase = false
 local purchaseCooldown = 3.5
 local currentDamage = 1
+
+local goal = {
+    Position = UDim2.new(0.5, -175, 1, -55)
+}
+local reversedGoal = {
+    Position = UDim2.new(0.5, -175, 1, 0)
+}
+local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+local showtween = TweenService:Create(resetmineFrame, tweenInfo, goal)
+local hidetween = TweenService:Create(resetmineFrame, tweenInfo, reversedGoal)
 
 --| Functions |--
 local function dprint(level, ...)
@@ -186,6 +199,24 @@ local function onupdate(stat, value)
     end
 end
 
+local function onresetmineSignal()
+    resetTimer.Text = 'Mine resetting in 5'
+    showtween:Play()
+    wait(1)
+    resetTimer.Text = 'Mine resetting in 4'
+    wait(1)
+    resetTimer.Text = 'Mine resetting in 3'
+    wait(1)
+    resetTimer.Text = 'Mine resetting in 2'
+    wait(1)
+    resetTimer.Text = 'Mine resetting in 1'
+    wait(1)
+    resetTimer.Text = 'Mine resetting...'
+    returnEvent:FireServer()
+    wait(3)
+    hidetween:Play()
+end
+
 --| Startup |--
 -- run systems
 clientMiner()
@@ -194,6 +225,7 @@ clientMiner()
 updateEvent.OnClientEvent:Connect(onupdate)
 returnbutton.MouseButton1Click:Connect(returnToTop)
 upgradeButton.MouseButton1Click:Connect(purchaseRequest)
+resetmineEvent.OnClientEvent:Connect(onresetmineSignal)
 mouse.Move:Connect(function()
     local target = mouse.Target
     if not target then return end

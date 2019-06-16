@@ -3,7 +3,7 @@ File:			\src\shared\tiledata.lua
 Created On:		June 15th 2019, 04:55:48 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 01:33:25 AM
+Last Modified:	 June 16th 2019, 03:44:13 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -27,17 +27,38 @@ local tileData = {
         hp = 3,
         r = 1
     },
-    Copper = {
-        hp = 5,
+
+    Coal = {
+        hp = 7,
         r = 2
-    },
-    Tin = {
-        hp = 8,
-        r = 5
     },
     Iron = {
         hp = 12,
-        r = 10
+        r = 5
+    },
+    Gold = {
+        hp = 15,
+        r = 15
+    },
+    Lapis = {
+        hp = 10,
+        r = 4
+    },
+    Ruby = {
+        hp = 50,
+        r = 35
+    },
+    Emerald = {
+        hp = 100,
+        r = 50
+    },
+    Glowrock = {
+        hp = 50,
+        r = 100
+    },
+    Diamond = {
+        hp = 250,
+        r = 500
     }
 }
 --| Local Functions |--

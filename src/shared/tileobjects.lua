@@ -3,7 +3,7 @@ File:			\src\shared\tileobjects.lua
 Created On:		June 15th 2019, 04:55:48 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 01:34:38 AM
+Last Modified:	 June 16th 2019, 04:32:28 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -47,11 +47,18 @@ end
 
 --| Module Definition |--
 local tiles = {
-    dirtTile = defineTile('dirtTile', 0, 8, 60),
-    stoneTile = defineTile('stoneTile', 1, 150, 70),
-    copperTile = defineTile('copperTile', 1, 25, 15),
-    tinTile = defineTile('tinTile', 7, 40, 12),
-    ironTile = defineTile('ironTile', 10, 75, 12)
+    dirtTile = defineTile('dirtTile', 0, 8, 100),
+    stoneTile = defineTile('stoneTile', 1, 150, 150),
+    lessRareDirtTile = defineTile('dirtTile', 9, 150, 10),
+    coalTile = defineTile('coalTile',2, 120, 20),
+    ironTile = defineTile('ironTile', 10, 140, 20),
+    goldTile = defineTile('goldTile', 25, 150, 7),
+    lapisTile = defineTile('lapisTile', 45, 150, 25),
+    rubyTile = defineTile('rubyTile', 80, 150, 15),
+    emeraldTile = defineTile('emeraldTile', 115, 150, 5),
+    glowrockTile = defineTile('glowrockTile', 200, 150, 3),
+    diamondTile = defineTile('diamondTile', 300, 150, 1),
+    bedrockTile = defineTile('bedrockTile', 151, 9999, 1)
 }
 
 function tiles:GetRandomTileInDepth(depth)

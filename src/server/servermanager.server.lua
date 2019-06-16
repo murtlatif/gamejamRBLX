@@ -3,7 +3,7 @@ File:			\src\server\systems\serverMiner.lua
 Created On:		June 15th 2019, 04:27:22 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 03:02:47 AM
+Last Modified:	 June 16th 2019, 04:31:02 AM
 Modified By:	 Chomboghai
 
 Description:	
@@ -31,6 +31,7 @@ local minedEvent = ReplicatedStorage:WaitForChild'mined'
 local updateEvent = ReplicatedStorage:WaitForChild'update'
 local returnEvent = ReplicatedStorage:WaitForChild'return'
 local purchaseEvent = ReplicatedStorage:WaitForChild'purchase'
+local resetmineEvent = ReplicatedStorage:WaitForChild'resetmine'
 
 local damagedTiles = {}
 
@@ -38,13 +39,14 @@ local tileFolder = workspace:WaitForChild'Tiles'
 local spawnPoint = workspace:WaitForChild'spawn'
 local additionalSpawnHeight = 10
 
-local nextEmptyLayerDepth = 1
+local nextEmptyLayerDepth = 0
 local latestLayerBroken = 0
 local layersAheadToSpawn = 8
 local layerWidth = 12
 local leftMineableBlockXPos = 4
-local maxlayer = 585
+local maxlayer = 155
 
+local minezoneGuard = workspace:WaitForChild'minezoneGuard'
 --| Functions |--
 local function dprint(level, ...)
     if debuglevel >= level then
@@ -66,7 +68,7 @@ local function initPlayer(player)
 
     if player.UserId == 2282833 then
         callUpdate('money', moneyStore:Get(1000))
-        damageStore:Get(1)
+        damageStore:Get(100)
     else
         callUpdate('money', moneyStore:Get(0))
         damageStore:Get(1)
@@ -95,6 +97,10 @@ local function generateTiles()
             end
         end
         nextEmptyLayerDepth = nextEmptyLayerDepth + 1
+    end
+
+    if nextEmptyLayerDepth > 0 and minezoneGuard.CanCollide then
+        minezoneGuard.CanCollide = false
     end
 end
 
@@ -194,10 +200,34 @@ local function onReturnRequest(player)
     hrp.CFrame = CFrame.new(spawnPoint.Position.X, spawnPoint.Position.Y + additionalSpawnHeight, hrp.Position.Z)
 end
 
+local function resetMine()
+    minezoneGuard.CanCollide = true
+    for _, player in pairs(Players:GetPlayers()) do
+        onReturnRequest(player)
+    end
+
+    wait(1)
+    tileFolder:ClearAllChildren()
+    damagedTiles = {}
+    latestLayerBroken = 0
+    nextEmptyLayerDepth = 0
+    generateTiles()
+end
+
 --| Startup |--
 DataStore2.Combine('playerData', 'money')
 DataStore2.Combine('playerData', 'damage')
 generateTiles()
+
+-- reset mine on timer
+spawn(function()
+    repeat
+        wait(300)
+        resetmineEvent:FireAllClients()
+        wait(5)
+        resetMine()
+    until false
+end)
 
 --| Triggers |--
 Players.PlayerAdded:Connect(initPlayer)
