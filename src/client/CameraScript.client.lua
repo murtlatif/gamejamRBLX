@@ -3,7 +3,7 @@ File:			\src\client\clientcam.client.lua
 Created On:		June 15th 2019, 03:06:15 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 03:04:29 AM
+Last Modified:	 June 16th 2019, 02:24:18 PM
 Modified By:	 Chomboghai
 
 Description:	
@@ -40,6 +40,8 @@ local playerGui = player:WaitForChild'PlayerGui'
 
 local returngui = playerGui:WaitForChild'returngui'
 local returnframe = returngui:WaitForChild'Frame'
+local depthframe = returnframe:WaitForChild'depthFrame'
+local depthtext = depthframe:WaitForChild'depthText'
 local hideReturnGuiYPos = 125
 local showReturnGuiYPos = -125
 local currentReturnGuiYPos = hideReturnGuiYPos
@@ -159,6 +161,12 @@ local function onUpdate()
 
         returnframe.Position = UDim2.new(1, -350, 1, currentReturnGuiYPos)
         shopframe.Position = UDim2.new(0.5, -200, currentShopGuiYScale, -100)
+        local depth = math.floor(-camY/4)
+        if depth < 0 then
+            depthtext.Text = 'Depth: Surface'
+        else
+            depthtext.Text = 'Depth: ' .. tostring(math.floor(-camY/4))
+        end
         camera.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + cameraYOffset, cameraZ)
 	end
 end

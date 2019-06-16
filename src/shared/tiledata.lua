@@ -3,7 +3,7 @@ File:			\src\shared\tiledata.lua
 Created On:		June 15th 2019, 04:55:48 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 04:42:21 AM
+Last Modified:	 June 16th 2019, 12:43:38 PM
 Modified By:	 Chomboghai
 
 Description:	
@@ -37,15 +37,15 @@ local tileData = {
         r = 5
     },
     Gold = {
-        hp = 15,
-        r = 15
+        hp = 25,
+        r = 20
     },
     Lapis = {
-        hp = 10,
+        hp = 8,
         r = 4
     },
     Ruby = {
-        hp = 50,
+        hp = 60,
         r = 35
     },
     Emerald = {

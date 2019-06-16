@@ -3,7 +3,7 @@ File:			\src\client\clientManager.client.lua
 Created On:		June 15th 2019, 04:07:46 PM
 Author:			Chomboghai
 
-Last Modified:	 June 16th 2019, 04:57:52 AM
+Last Modified:	 June 16th 2019, 02:25:13 PM
 Modified By:	 Chomboghai
 
 Description:	
@@ -42,6 +42,7 @@ local digsound = SoundService:WaitForChild'dig'
 local minesound = SoundService:WaitForChild'mine'
 local digbreak = SoundService:WaitForChild'digbreak'
 local minebreak = SoundService:WaitForChild'minebreak'
+local glassbreak = SoundService:WaitForChild'glassbreak'
 local buysuccess = SoundService:WaitForChild'buysuccess'
 local buyfail = SoundService:WaitForChild'buyfail'
 local mouseBox = playerGui:WaitForChild'SelectionBox'
@@ -107,6 +108,9 @@ local function sendMineSignal(tile)
         elseif CollectionService:HasTag(tile, 'Mine') then
             playsfx(minesound)
             tag = 'Mine'
+        elseif CollectionService:HasTag(tile, 'Glass') then
+            playsfx(minesound)
+            tag = 'Glass'
         else
             warn('no sound tag for tile:', tile)
         end
@@ -118,10 +122,13 @@ local function sendMineSignal(tile)
                 playsfx(digbreak)
             elseif tag == 'Mine' then
                 playsfx(minebreak)
+            elseif tag == 'Glass' then
+                playsfx(glassbreak)
             else
                 warn('broken tile:', tile, ' has no tag so playing minebreak')
                 playsfx(minebreak)
             end
+            mouseBox.Adornee = nil
         end
         dprint(4, '[client-sendmine] sent mine signal')
     end
@@ -136,6 +143,7 @@ local function clientMiner()
         local target = mouse.Target
         if target then
             if CollectionService:HasTag(target, 'Mineable') then
+                onMouseMove(target)
                 if player.Character and player:DistanceFromCharacter(target.Position) < maxReachRange then
                     minedRecently = true
                     sendMineSignal(target)
@@ -233,4 +241,5 @@ mouse.Move:Connect(function()
     if not target then return end
     onMouseMove(target)
 end)
+
 --| Loop |--
